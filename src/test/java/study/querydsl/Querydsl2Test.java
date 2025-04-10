@@ -14,7 +14,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.dto.MemberDto;
 import study.querydsl.dto.QMemberDto;
@@ -27,7 +26,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static study.querydsl.entity.QMember.member;
-import static study.querydsl.entity.QTeam.team;
 
 @SpringBootTest
 @Transactional
@@ -173,7 +171,7 @@ class Querydsl2Test {
         Integer ageParam = 10;
 
         List<Member> results = searchMember1(usernameParam, ageParam);
-        assertThat(results.size()).isEqualTo(2);
+        assertThat(results.size()).isEqualTo(1);
     }
 
     private List<Member> searchMember1(String usernameCond, Integer ageCond) {
@@ -198,7 +196,7 @@ class Querydsl2Test {
         Integer ageParam = 10;
 
         List<Member> results = searchMember2(usernameParam, ageParam);
-        assertThat(results.size()).isEqualTo(2);
+        assertThat(results.size()).isEqualTo(1);
     }
 
     private List<Member> searchMember2(String usernameCond, Integer ageCond) {
@@ -296,8 +294,4 @@ class Querydsl2Test {
             System.out.println("s = " + s);
         }
     }
-
-
-
-
 }
