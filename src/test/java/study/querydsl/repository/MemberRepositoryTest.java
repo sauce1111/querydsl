@@ -4,10 +4,13 @@ import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.dto.MemberSearchCondition;
 import study.querydsl.dto.MemberTeamDto;
 import study.querydsl.entity.Member;
+import study.querydsl.entity.QMember;
 import study.querydsl.entity.Team;
 
 import java.util.List;
@@ -42,6 +45,18 @@ class MemberRepositoryTest {
 
     @Test
     void searchTest() {
+        setData();
+
+        MemberSearchCondition condition = new MemberSearchCondition();
+        condition.setAgeGoe(35);
+        condition.setAgeLoe(40);
+        condition.setTeamName("teamB");
+
+        List<MemberTeamDto> results = repository.search(condition);
+        assertThat(results).extracting("username").containsExactly("member4");
+    }
+
+    private void setData() {
         Team teamA = new Team("teamA");
         Team teamB = new Team("teamB");
         em.persist(teamA);
@@ -55,13 +70,46 @@ class MemberRepositoryTest {
         em.persist(member2);
         em.persist(member3);
         em.persist(member4);
+    }
+
+    @Test
+    void searchPageSimpleTest() {
+        setData();
 
         MemberSearchCondition condition = new MemberSearchCondition();
-        condition.setAgeGoe(35);
-        condition.setAgeLoe(40);
-        condition.setTeamName("teamB");
+        PageRequest pageRequest = PageRequest.of(0, 3);
 
-        List<MemberTeamDto> results = repository.search(condition);
-        assertThat(results).extracting("username").containsExactly("member4");
+        Page<MemberTeamDto> results = repository.searchPageSimple(condition, pageRequest);
+        assertThat(results.getSize()).isEqualTo(3);
+        assertThat(results.getContent()).extracting("username").containsExactly("member1", "member2", "member3");
+    }
+
+    @Test
+    void querydslPredicateExecutorTest() {
+        setData();
+
+        QMember member = QMember.member;
+        Iterable<Member> members = repository.findAll(member.age.between(20, 40).and(member.username.eq("member1")));
+
+        for (Member findMember : members) {
+            System.out.println("findMember = " + findMember);
+        }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
